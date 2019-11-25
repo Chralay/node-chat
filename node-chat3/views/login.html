@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录聊天室</title>
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css" media="screen">
+</head>
+<body>
+<div class="container-fluid col-md-6">
+    <form id="form" role="form" onsubmit="return false;" class="col-sm-offset-4 col-sm-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <p>聊天室登录</p>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="input-group">
+                        <p class=" input-group-addon  ">
+                            <span class=" glyphicon glyphicon-user"></span>
+                        </p>
+                        <input type="text" class="form-control" id="username" placeholder="请填写用户名">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <p class=" input-group-addon  ">
+                            <span class="glyphicon glyphicon-lock"></span>
+                        </p>
+                        <input type="password" class="form-control" id="password" placeholder="请填写密码">
+                    </div>
+                </div>
+                <div class="form-group">
+                        <div class="input-group">
+                            <div class="row">
+                                    <!-- <p class=" input-group-addon">
+                                            <span class=" glyphicon glyphicon-user"></span>
+                                        </p> -->
+                                <div class="col-md-8 col-sm-8">
+                                    
+                                    <input class="form-control" type="text" id="captcha" maxlength="4" placeholder="请输入验证码">
+                                </div>
+                                <div class="col-md-4 col-sm-4">
+                                        <img src="/captcha" onclick="{$(event.target).attr('src','/captcha?'+Math.random())} "width="90" height="35">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                </div>
+                <div class="well well-sm" style="text-align:center;">
+                    <input type="radio" name="kind" value="user" id="user" checked> <label for="user">用户</label>
+                    <input type="radio" name="kind" value="admin" id="admin"> <label for="admin">管理员</label>
+                </div>
+                <div class="form-group text-right">
+                    <button class="btn btn-primary" id="login">登录</button>
+                    <button class="btn btn-default" id="register">用户注册</button>
+                    <button class="btn btn-default"><a data-toggle="modal" data-target="#reset">密码重置</a></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-md-6">
+    <h3>
+        欢迎使用聊天室
+    </h3>
+    <ul>
+        <li>用户可注册、登陆、重置密码</li>
+        <li>管理员只能登陆，不可注册、不可重置密码</li>
+    </ul>
+</div>
+<div class="modal fade" id="reset">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span>
+                </button>
+                <h4 class="modal-title">密码重置</h4>
+            </div>
+            <div class="modal-body">
+                <p>用户名：<input type="text" class="form-control" id="username1"></p>
+                <p>你的生日：<input type="date" class="form-control" id="userDOB"></p>
+                <p>你的高中：<input type="text" class="form-control" id="userHS"></p>
+                <p>新密码：<input type="password" class="form-control" id="newPwd"></p>
+                <p>重复新密码：<input type="password" class="form-control" id="reNewPwd"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="resetPwdBtn">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../public/js/jquery-1.11.2.min.js"></script>
+<script src="../public/js/bootstrap.min.js"></script>
+<script>
+    $('#register').on({
+        click: function () {
+            var kind = $('input:radio:checked').val();
+            if(kind == 'user')
+                location.href = 'register';
+            else alert('管理员不可注册');
+        }
+    });
+
+    $('#login').on({
+        click: function () {
+            var username = $('#username').val();
+            var password = $('#password').val();
+            var captcha = $('#captcha').val().toLowerCase();
+            var kind = $('input:radio:checked').val();
+            if (username == '') {
+                alert('请填写用户名!');
+                return false;
+            }
+            var reg = /^[a-z0-9_-]{6,18}$/;
+            if (!reg.test(password)) {
+                alert('请填6-12位写密码！');
+                return false;
+            }
+            if(captcha == ''){
+                alert('请输入验证码!');
+                return false;
+            }
+            $.post('/login/signIn', {username: username, password: password, kind: kind, captcha:captcha}, function (res) {//'/login/signIn'不在同一个目录为什么可以直接用
+                if (res.success == 1) {
+                    location.href = 'home';
+                }else if(res.success == 2){
+                    location.href = 'admin';
+                } 
+                else {
+                    alert(res.err);
+
+                }
+            }, 'json');
+        }
+    })
+
+    // 重置密码
+    $('#resetPwdBtn').on('click',function(){
+        var username = $('#username1').val();
+        var userDOB = $('#userDOB').val();
+        var userHS = $('#userHS').val();
+        var newPwd = $('#newPwd').val();
+        var reNewPwd = $('#reNewPwd').val();
+        var reg = /^[a-z0-9_-]{6,18}$/;
+        if (!reg.test(newPwd)) {
+            alert('请填6-12位写密码！');
+            return false;
+        }
+        if(newPwd !== reNewPwd){
+            alert('新密码不一致，请重新输入');
+            $('#newPwd').html('');
+            $('#reNewPwd').html('');
+        }else{
+            $.post('/resetPwd', {username:username, userDOB: userDOB, userHS: userHS, newPwd:newPwd}, function (res) {
+                if (res.success == 1) {
+                    alert('重置密码成功');
+                    $('#reset').modal('hide');
+                } else {
+                    alert(res.err);
+                }
+            }, 'json')
+        }    
+    });    
+    
+</script>
+</body>
+</html>

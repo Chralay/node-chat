@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>聊天室</title>
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../public/css/css.css">
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">聊天室</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid" style="margin-top: 60px">
+    <div class="row col-sm-12 col-md-12">
+        <div class="col-sm-3 col-md-3 sidebar">
+            <!--个人信息区-->
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="glyphicon glyphicon-user">&nbsp;个人信息</h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-sm-6">
+                            <img src="{{image}}" alt="个人图像" style="width: 100%;" id="userImage">
+                        </div>
+                        <div class="col-sm-6">
+                            <p>昵称：<span id="username">{{username}}</span></p>
+                            <p><a data-toggle="modal" data-target="#changeInfo">修改信息</a></p>
+                            <p><a data-toggle="modal" data-target="#changePwd">修改密码</a></p>
+                            <p><a id="exitBtn">退出</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="glyphicon glyphicon-pushpin">&nbsp;在线用户</h4>
+                    </div>
+                    <div class="panel-body">
+                        <ul id="peopleList">
+                        </ul>
+                    </div>
+                    <div class="panel-footer" id="list-count">
+                        当前在线：<span></span>人
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-9  col-md-9">
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="glyphicon glyphicon-leaf">&nbsp;聊天内容</h4>
+                    </div>
+                    <div class="panel-body">
+                        <ul id="MsgList" class="list">
+                        </ul>
+                    </div>
+                    <div class="selectBox"> 
+                        <div class="smile" id="smileDiv">
+                                <p>经典表情</p>
+                                <ul class="emoji"></ul>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="infoBox">
+                            <div id="navbar" class="navbar-collapse collapse">
+                                <ul class="nav navbar-nav option">
+                                    <li>
+                                        <img src="../public/img/smail.png" alt="" id="smileBtn">
+                                    </li>
+                                    <li>
+                                        <div class="files">
+                                            <img src="../public/img/pic.png" alt="" id="addImage">
+                                            <input type="file" accept="image/*" id="files"
+                                                   onchange="changeFiles(event)">
+                                        </div>
+                                    </li>
+                                    <!-- 加抖动能加吗？ -->
+                                </ul>
+                            </div>
+                            <div class="infoInput text-right">
+                                <textarea id="msgInput" class="form-control"></textarea>
+                                <br>
+                                <button class="btn btn-info " id="sendBtn">发送</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="changeInfo">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span>
+                </button>
+                <h4 class="modal-title">修改信息</h4>
+            </div>
+            <div class="modal-body">
+                <p>昵称：<input type="text" class="form-control" id="newName" value="{{username}}"></p>
+                <div class="imgBox">
+                    图像：<img src="{{image}}" alt="" id="editImage">
+                    <input type="file" accept="image/*" id="fileImg"
+                           onchange="editImageFn(event)">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="editBtn">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="changePwd">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span>
+                </button>
+                <h4 class="modal-title">修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <p>原密码：<input type="password" class="form-control" id="oldPwd"></p>
+                <p>新密码：<input type="password" class="form-control" id="newPwd"></p>
+                <p>重复新密码：<input type="password" class="form-control" id="reNewPwd"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="editPwdBtn">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../public/js/jquery-1.11.2.min.js"></script>
+<script src="../public/js/bootstrap.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="../public/js/js.js"></script>
+</body>
+</html>

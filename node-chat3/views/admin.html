@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>管理员界面</title>
+    
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../public/css/admin_css.css">
+
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="/node_modules/bootstrap-table/dist/bootstrap-table.css">
+    <!-- <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css"> -->
+    <!-- Bootstrap table -->
+    <!-- <link rel="stylesheet" href="/bootstrap-table/dist/css/booststrap-table.min.css"> -->
+    <link rel="stylesheet" href="/node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <style>
+        .pageSidebar{margin-top: 51px;}
+    </style>
+</head>
+<body>
+<!--顶部导航栏部分-->
+<nav class="navbar navbar-inverse ">
+    <!-- navbar-fixed-top -->
+        <div class="container-fluid">
+            <!-- <div class="navbar-header">
+                 <a class="navbar-brand" title="logoTitle" href="#">管理员界面</a>
+                <ul>
+                        <li>
+                            <a href="admin_user.html" target="mainFrame" >用户管理</a>
+                        </li>
+                        <li>
+                            <a href="admin_add.html" target="mainFrame">添加管理员</a>
+                        </li>
+                </ul>
+           </div> -->
+           <div class="collapse navbar-collapse">
+               <ul class="nav navbar-nav navbar-left">
+                    <li>
+                        <a data-toggle="modal" data-target="#addAdmin">添加管理员</a>
+                    </li>
+               </ul>
+               <ul class="nav navbar-nav navbar-right">
+                   <li role="presentation">
+                       <a href="#">当前管理员：<span id="adminname">{{adminname}}</span></a>
+                   </li>
+                   <li>
+                       <a data-toggle="modal" data-target="#changePwd"><span>修改密码</span></a>
+                   </li>
+                   <li>
+                       <a href="#" id="exitBtn">
+                            <span class="glyphicon glyphicon-lock">退出登录</span></a>
+                    </li>
+                </ul>
+           </div>
+        </div>      
+    </nav>
+
+    <table id="table"></table>
+
+    <!-- 管理员个人信息，用户信息，增、删、重置密码、修改状态 -->
+
+    <div class="modal fade" id="addAdmin">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+                    <h4 class="modal-title">添加管理员</h4>
+                </div>
+                <div class="modal-body">
+                    <p>管理员：<input type="text" class="form-control" id="newAdminname"></p>
+                    <p>密码：<input type="password" class="form-control" id="pwd"></p>
+                    <p>重复密码：<input type="password" class="form-control" id="rePwd"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="addAdminBtn">确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="changePwd">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span>
+                    </button>
+                    <h4 class="modal-title">修改密码</h4>
+                </div>
+                <div class="modal-body">
+                    <p>原密码：<input type="password" class="form-control" id="oldPwd"></p>
+                    <p>新密码：<input type="password" class="form-control" id="newPwd"></p>
+                    <p>重复新密码：<input type="password" class="form-control" id="reNewPwd"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="editPwdBtn">确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>    
+<script src="../public/js/jquery-1.11.2.min.js"></script>
+<script src="../public/js/bootstrap.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="../public/js/admin_js.js"></script>
+<!-- JS 部分 -->
+<!-- jQuery 3 -->
+<!-- <script src="/jquery/dist/jquery.min.js"></script> -->
+<!-- <script src="/node_modules/jquery/jquery.min.js"></script>用这个会报错！！！！ -->
+<!-- Bootstrap 3.3.7 -->
+<!-- <script src="/bootstrap/dist/js/bootstrap.min.js"></script>上面有，不知道还要不要 -->
+<!-- bootstrap-table -->
+<!-- <script src="/bootstrap-table/dist/bootstrap-table.js"></script> -->
+<script src="/node_modules/bootstrap-table/dist/bootstrap-table.js"></script>
+<script src="/node_modules/bootstrap-table/dist/locale/bootstrap-table-zh-CN.js"></script>
+<script>
+    
+    // 增加新管理员，用路由
+    $('#addAdminBtn').on({
+        click: function () {
+            var adminname = $('#newAdminname').val();
+            var password = $('#pwd').val();
+            var rePwd = $('#rePwd').val();
+            var reg = /^[a-z0-9_-]{6,18}$/;
+            if (!reg.test(password)) {
+                alert('请填写6-12位密码！');
+                return false;
+            }
+            if(password !== rePwd){
+                alert('密码不一致，请重新输入');
+                $('#pwd').html('');
+                $('#rePwd').html('');
+                return false;
+            }
+            $.post('/adminAdd', {adminname:adminname, password: password}, function (res) {//挪到了index.js那里
+                alert(res.message);
+                if(res.success == 1){
+                    $('#addAdmin').modal('hide');
+                }
+            }, 'json')
+        }
+    });
+
+$('#table').bootstrapTable('destroy').bootstrapTable({  
+    striped: true,  
+    pagination:true,  
+    sidePagination:'server',  
+    url:'/search',
+    method: 'get',
+    search: true,                      //是否显示表格搜索
+    strictSearch: true,
+    showColumns: true,                  //是否显示所有的列（选择显示的列）
+    showRefresh: true,                  //是否显示刷新按钮
+    queryParamsType: '',//设置请求参数格式
+    // queryParams: function queryParams(params) { //设自定义查询参数
+    //     /*请求远程数据时，您可以通过修改queryParams来发送其他参数。
+    //     如果queryParamsType = 'limit'，params对象包含：limit，offset，search，sort，order。
+    //     否则，它包含：pageSize，pageNumber，searchText，sortName，sortOrder。
+    //     返回false停止请求。
+    //     默认： function(params) { return params }*/
+    //     return params;
+    // },    
+    //得到查询的参数
+    queryParams : function (params) {
+                    //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    var temp = {   
+                        rows: params.limit,                         //页面大小
+                        page: (params.offset / params.limit) + 1,   //页码
+                        sort: params.sort,      //排序列名  
+                        sortOrder: params.order //排位命令（desc，asc） 
+                    };
+                    return temp;
+                },
+    columns: [
+    // {
+    //     checkbox: true,  
+    //     visible: true                  //是否显示复选框  
+    // }, 
+    {  
+        field: 'user_id',  
+        title: 'ID',
+        align: 'center',
+        width: 250
+    }, {  
+        field: 'username',  
+        title: '用户名',
+        align: 'center'
+    }, {  
+        field: 'password',  
+        title: '密码',
+        align: 'center'
+    },{  
+        field: 'state',  
+        title: '用户状态',
+        align: 'center',
+        width: 100
+    }, {
+        field:'id',
+        title: '操作',
+        width:500,
+        // width: 120,
+        align: 'center',
+        valign: 'middle',
+        formatter: actionFormatter
+    }],
+    onLoadSuccess: function(result){
+        console.log("result: "+result);
+    },
+    onLoadError: function(err){
+        console.log("error: "+err);
+    }
+});  
+
+//操作栏的格式化
+function actionFormatter(value, row, index) {
+    var id = row.user_id;
+    var result = "";
+    // console.log('value:'+value+' row:'+row+' index:'+index);
+    // console.log(id);
+
+    // result += "<button style='cursor: pointer' class='btn btn-primary' onclick=\"EditPwd('" + id + "')\">重置密码</button>&emsp;&emsp;";
+    result += "<button style='cursor: pointer' class='btn btn-primary' onclick=\"EditState('" + id + "')\">重置状态</button>&emsp;&emsp;";
+    result += "<button style='cursor: pointer' class='btn btn-danger' onclick=\"Delete('" + id + "')\">删除用户</button>";
+    return result;
+}
+function Delete(id){
+    $.post('/delete', {userId:id}, function (res) {
+        if (res.success == 1) {
+            alert('成功删除用户:'+ res.username);
+            $("#table").bootstrapTable('refresh');
+        } else {
+            alert(res.err);
+        }
+    }, 'json')
+}
+// 已取消管理员重置用户密码的功能
+// function EditPwd(id){
+//     $.post('/editPwd', {userId:id}, function (res) {
+//         if (res.success == 1) {
+//             $("#table").bootstrapTable('refresh');
+//         } else {
+//             alert(res.err);
+//         }
+//     }, 'json')
+// }
+function EditState(id){
+    $.post('/editState', {userId:id}, function (res) {
+        if (res.success == 1) {
+            $("#table").bootstrapTable('refresh');
+        } else {
+            alert(res.err);
+        }
+    }, 'json')
+}
+
+</script>
+</body>
+</html>

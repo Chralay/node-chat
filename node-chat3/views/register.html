@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户注册</title>
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css" media="screen">
+</head>
+<body>
+<div class="container-fluid">
+    <form id="form" role="form" onsubmit="return false;" class="col-sm-offset-4 col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <p>聊天室注册</p>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="input-group">
+                        <p class=" input-group-addon  ">
+                            <span class=" glyphicon glyphicon-user"></span>
+                        </p>
+                        <input type="text" class="form-control" id="username" placeholder="请填写用户名">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <p class=" input-group-addon  ">
+                            <span class="glyphicon  glyphicon-lock"></span>
+                        </p>
+                        <input type="password" class="form-control" id="password" placeholder="请填写密码">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <p class=" input-group-addon  ">
+                            <span class="glyphicon  glyphicon-lock"></span>
+                        </p>
+                        <input type="password" class="form-control" id="rePassword" placeholder="请再次填写密码">
+                    </div>
+                </div>
+                <p>用于密码重置时的问题</p>
+                <div class="form-group">
+                    <div class="input-group">
+                        <p class=" input-group-addon  ">
+                            <span>你的生日</span>
+                        </p>
+                        <input type="date" class="form-control" id="userDOB">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <p class=" input-group-addon  ">
+                            <span>你的高中</span>	
+                        </p>
+                        <input type="text" class="form-control" id="userHS">
+                    </div>
+                </div>
+                <div class="form-group text-right">
+                    <button class="btn btn-default" id="register">注册</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="../public/js/jquery-1.11.2.min.js"></script>
+<script src="../public/js/bootstrap.min.js"></script>
+<script>
+    $('#register').on({
+        click: function () {
+            var username = $('#username').val();
+            var password = $('#password').val();
+            var rePassowrd = $('#rePassword').val();
+            var userDOB = $('#userDOB').val();
+            var userHS = $('#userHS').val();
+
+            if (username == '') {
+                alert('请填写用户名！');
+                return false;
+            }
+            var reg = /^[a-z0-9_-]{6,18}$/;
+            if (!reg.test(password)) {
+                alert('请填写6-12位密码！');
+                return false;
+            }
+
+            if (password !== rePassowrd) {
+                alert('两次密码不一致!');
+                return false;
+            }
+
+            $.post('/register/signUp', {username: username, password: password, userDOB:userDOB, userHS:userHS}, function (res) {
+                // alert('收到回复');
+                if (res.success == 1) {
+                    alert('注册成功');
+                    location.href = 'login';
+                } else {
+                    alert(res.err);
+                }
+            }, 'json')
+        }
+    });
+
+</script>
+</body>
+</html>
